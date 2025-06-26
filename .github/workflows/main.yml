@@ -1,0 +1,37 @@
+name: Runing
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+jobs:
+  Run:
+    name: Run
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+      
+      - name: Install Python
+        uses: actions/setup-python@main
+        with:
+          python-version: 3.13
+      
+      - name: Preparing
+        run: |
+          pip install requests feedparser
+      
+      - name: Run
+        run: python renew.py
+        env:
+          Directory_ID: ${{ secrets.Directory_ID }}
+          Application_ID: ${{ secrets.Application_ID }}
+          Client_Secret: ${{ secrets.Client_Secret }}
+
+  keepalive:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1
